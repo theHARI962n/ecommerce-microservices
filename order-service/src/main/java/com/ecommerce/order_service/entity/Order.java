@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -13,14 +15,22 @@ public class Order {
     @GeneratedValue
     private UUID id;
 
-    private UUID productId;
+//    private UUID productId;
     private String userEmail;
 
-    private Integer quantity;
+//    private Integer quantity;
 
     private BigDecimal totalPrice;
 
     private LocalDateTime createdAt;
+
+    @OneToMany(
+            mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<OrderItem> items = new ArrayList<>();
+
 
     @PrePersist
     public void onCreate() {
@@ -35,13 +45,13 @@ public class Order {
         this.id = id;
     }
 
-    public UUID getProductId() {
-        return productId;
-    }
-
-    public void setProductId(UUID productId) {
-        this.productId = productId;
-    }
+//    public UUID getProductId() {
+//        return productId;
+//    }
+//
+//    public void setProductId(UUID productId) {
+//        this.productId = productId;
+//    }
 
     public String getUserEmail() {
         return userEmail;
@@ -51,13 +61,13 @@ public class Order {
         this.userEmail = userEmail;
     }
 
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
+//    public Integer getQuantity() {
+//        return quantity;
+//    }
+//
+//    public void setQuantity(Integer quantity) {
+//        this.quantity = quantity;
+//    }
 
     public BigDecimal getTotalPrice() {
         return totalPrice;
@@ -73,5 +83,14 @@ public class Order {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
     }
 }
