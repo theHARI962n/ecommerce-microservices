@@ -47,4 +47,32 @@ public class CartController {
 
     }
 
+    @GetMapping
+    public ResponseEntity<?> getCart(
+
+            @RequestHeader("X-User-Email")
+            String email
+
+    ){
+
+        return ResponseEntity.ok(
+                cartService.getCart(email)
+        );
+
+    }
+
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkout(
+
+            @RequestHeader("X-User-Email")
+            String email
+
+    ){
+
+        return ResponseEntity.ok(
+                cartService.checkout(email)
+        );
+
+    }
+
 }
