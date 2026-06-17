@@ -1,8 +1,9 @@
 package com.ecommerce.cart_service.service;
 
 
+import com.ecommerce.cart_service.client.OrderClient;
 import com.ecommerce.cart_service.client.ProductClient;
-import com.ecommerce.cart_service.dto.AddToCartRequest;
+import com.ecommerce.cart_service.dto.*;
 import com.ecommerce.cart_service.entity.Cart;
 import com.ecommerce.cart_service.entity.CartItem;
 import com.ecommerce.cart_service.repository.CartRepository;
@@ -10,8 +11,10 @@ import com.ecommerce.cart_service.repository.CartRepository;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
-
+import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -21,15 +24,17 @@ public class CartService {
     private final CartRepository cartRepository;
 
     private final ProductClient productClient;
-
+    private final OrderClient orderClient;
 
 
     public CartService(
             CartRepository cartRepository,
-            ProductClient productClient
+            ProductClient productClient,
+            OrderClient orderClient
     ){
         this.cartRepository = cartRepository;
         this.productClient = productClient;
+        this.orderClient = orderClient;
     }
 
 
@@ -96,6 +101,159 @@ public class CartService {
 
         return cartRepository.save(cart);
 
+
+    }
+
+
+    public CartResponse getCart(String email){
+
+
+        Cart cart =
+                cartRepository
+                        .findByUserEmail(email)
+                        .orElseThrow(
+                                () -> new RuntimeException("Cart not found")
+                        );
+
+
+
+        List<CartItemResponse> items =
+                cart.getItems()
+                        .stream()
+                        .map(item -> {
+
+
+                            Map<String,Object> product =
+                                    productClient.getProductById(
+                                            item.getProductId()
+                                    );
+
+
+
+                            CartItemResponse response =
+                                    new CartItemResponse();
+
+
+                            response.setProductId(
+                                    item.getProductId()
+                            );
+
+
+                            response.setProductName(
+                                    product.get("name").toString()
+                            );
+
+
+                            response.setPrice(
+                                    new BigDecimal(
+                                            product.get("price").toString()
+                                    )
+                            );
+
+
+                            response.setQuantity(
+                                    item.getQuantity()
+                            );
+
+
+                            return response;
+
+
+                        })
+                        .toList();
+
+
+
+        CartResponse response =
+                new CartResponse();
+
+
+
+        response.setCartId(
+                cart.getId()
+        );
+
+
+        response.setUserEmail(
+                cart.getUserEmail()
+        );
+
+
+        response.setItems(items);
+
+
+
+        return response;
+
+    }
+
+
+
+    public OrderResponse checkout(String email){
+
+
+        Cart cart =
+                cartRepository
+                        .findByUserEmail(email)
+                        .orElseThrow(
+                                () -> new RuntimeException("Cart empty")
+                        );
+
+
+
+        List<OrderItemRequest> items =
+                cart.getItems()
+                        .stream()
+                        .map(cartItem -> {
+
+
+                            OrderItemRequest item =
+                                    new OrderItemRequest();
+
+
+                            item.setProductId(
+                                    cartItem.getProductId()
+                            );
+
+
+                            item.setQuantity(
+                                    cartItem.getQuantity()
+                            );
+
+
+                            return item;
+
+
+                        })
+                        .toList();
+
+
+
+        OrderRequest orderRequest =
+                new OrderRequest();
+
+
+        orderRequest.setItems(items);
+
+
+        System.out.println(orderRequest);
+        System.out.println(email);
+
+        OrderResponse response =
+                orderClient.createOrder(orderRequest,email);
+
+
+
+        // clear cart after successful order
+
+        cart.getItems().clear();
+
+
+        cartRepository.save(cart);
+
+
+
+        return response;
 
     }
 
