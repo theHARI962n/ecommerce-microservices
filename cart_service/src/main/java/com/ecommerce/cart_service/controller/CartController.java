@@ -2,6 +2,7 @@ package com.ecommerce.cart_service.controller;
 
 
 import com.ecommerce.cart_service.dto.AddToCartRequest;
+import com.ecommerce.cart_service.dto.UpdateQuantityRequest;
 import com.ecommerce.cart_service.entity.Cart;
 import com.ecommerce.cart_service.service.CartService;
 
@@ -93,6 +94,29 @@ public class CartController {
 
         return ResponseEntity.ok(
                 "Item removed from cart"
+        );
+    }
+
+    @PutMapping("/{productId}")
+    public ResponseEntity<?> updateQuantity(
+
+            @PathVariable UUID productId,
+
+            @RequestBody UpdateQuantityRequest request,
+
+            @RequestHeader("X-User-Email")
+            String email
+
+    ) {
+
+        cartService.updateQuantity(
+                email,
+                productId,
+                request.getQuantity()
+        );
+
+        return ResponseEntity.ok(
+                "Quantity updated"
         );
     }
 
