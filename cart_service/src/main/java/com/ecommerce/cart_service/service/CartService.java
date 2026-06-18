@@ -78,24 +78,54 @@ public class CartService {
 
 
 
-        CartItem item = new CartItem();
+        CartItem existingItem = cart.getItems()
+                .stream()
+                .filter(item ->
+                        item.getProductId().equals(request.getProductId())
+                )
+                .findFirst()
+                .orElse(null);
 
+        if (existingItem != null) {
 
-        item.setProductId(
-                request.getProductId()
-        );
+            existingItem.setQuantity(
+                    existingItem.getQuantity() + request.getQuantity()
+            );
 
+        } else {
 
-        item.setQuantity(
-                request.getQuantity()
-        );
+            CartItem item = new CartItem();
 
+            item.setProductId(
+                    request.getProductId()
+            );
 
-        item.setCart(cart);
+            item.setQuantity(
+                    request.getQuantity()
+            );
 
+            item.setCart(cart);
 
-
-        cart.getItems().add(item);
+            cart.getItems().add(item);
+        }
+//        CartItem item = new CartItem();
+//
+//
+//        item.setProductId(
+//                request.getProductId()
+//        );
+//
+//
+//        item.setQuantity(
+//                request.getQuantity()
+//        );
+//
+//
+//        item.setCart(cart);
+//
+//
+//
+//        cart.getItems().add(item);
 
 
 
