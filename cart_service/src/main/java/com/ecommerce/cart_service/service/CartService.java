@@ -307,5 +307,40 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+    public void updateQuantity(
+            String email,
+            UUID productId,
+            Integer quantity
+    ) {
+
+        Cart cart =
+                cartRepository
+                        .findByUserEmail(email)
+                        .orElseThrow(
+                                () -> new RuntimeException("Cart not found")
+                        );
+
+        if(quantity <= 0){
+            throw new RuntimeException(
+                    "Quantity must be greater than zero"
+            );
+        }
+
+        CartItem item =
+                cart.getItems()
+                        .stream()
+                        .filter(cartItem ->
+                                cartItem.getProductId().equals(productId)
+                        )
+                        .findFirst()
+                        .orElseThrow(
+                                () -> new RuntimeException("Item not found")
+                        );
+
+        item.setQuantity(quantity);
+
+        cartRepository.save(cart);
+    }
+
 
 }
