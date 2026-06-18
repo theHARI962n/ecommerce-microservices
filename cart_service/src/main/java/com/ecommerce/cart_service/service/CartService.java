@@ -61,6 +61,16 @@ public class CartService {
             );
         }
 
+        Integer stock =
+                (Integer) product.get("stock");
+
+        if(request.getQuantity() > stock){
+
+            throw new RuntimeException(
+                    "Only " + stock + " items available in stock"
+            );
+        }
+
 
 
         Cart cart =
@@ -89,9 +99,18 @@ public class CartService {
 
         if (existingItem != null) {
 
-            existingItem.setQuantity(
-                    existingItem.getQuantity() + request.getQuantity()
-            );
+            int newQuantity =
+                    existingItem.getQuantity()
+                            + request.getQuantity();
+
+            if(newQuantity > stock){
+
+                throw new RuntimeException(
+                        "Only " + stock + " items available in stock"
+                );
+            }
+
+            existingItem.setQuantity(newQuantity);
 
         } else {
 
@@ -336,6 +355,22 @@ public class CartService {
                         .orElseThrow(
                                 () -> new RuntimeException("Item not found")
                         );
+
+        Map<String,Object> product =
+                productClient.getProductById(
+                        item.getProductId()
+                );
+
+        Integer stock =
+                (Integer) product.get("stock");
+
+        if(quantity > stock){
+
+            throw new RuntimeException(
+                    "Only " + stock + " items available in stock"
+            );
+        }
+
 
         item.setQuantity(quantity);
 
