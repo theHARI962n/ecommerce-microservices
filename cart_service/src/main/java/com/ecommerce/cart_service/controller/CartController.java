@@ -8,6 +8,7 @@ import com.ecommerce.cart_service.service.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
 
 
 @RestController
@@ -73,6 +74,26 @@ public class CartController {
                 cartService.checkout(email)
         );
 
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> removeItem(
+
+            @PathVariable UUID productId,
+
+            @RequestHeader("X-User-Email")
+            String email
+
+    ) {
+
+        cartService.removeItem(
+                email,
+                productId
+        );
+
+        return ResponseEntity.ok(
+                "Item removed from cart"
+        );
     }
 
 }
