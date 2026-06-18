@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Service
@@ -285,6 +286,25 @@ public class CartService {
 
         return response;
 
+    }
+
+    public void removeItem(
+            String email,
+            UUID productId
+    ) {
+
+        Cart cart =
+                cartRepository
+                        .findByUserEmail(email)
+                        .orElseThrow(
+                                () -> new RuntimeException("Cart not found")
+                        );
+
+        cart.getItems().removeIf(
+                item -> item.getProductId().equals(productId)
+        );
+
+        cartRepository.save(cart);
     }
 
 
